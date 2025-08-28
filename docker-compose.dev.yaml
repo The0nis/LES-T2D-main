@@ -1,0 +1,80 @@
+services:
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker/config.json:/config.json
+
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=sergiopeixoto3@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  spotlive:
+    image: ghcr.io/speixoto12/spotlive-web:preview
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile.prod
+    volumes:
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/public:/app/frontend/public
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spotlive.rule=Host(`spotlive-dev.westeurope.cloudapp.azure.com`)"
+      - "traefik.http.routers.spotlive.entrypoints=websecure"
+      - "traefik.http.routers.spotlive.tls.certresolver=myresolver"
+      - "traefik.http.services.spotlive.loadbalancer.server.port=80"
+      - "com.centurylinklabs.watchtower.enable=true"
+    deploy:
+      mode: replicated
+      replicas: 3
+    env_file:
+      - ./frontend/.env
+    command: npm run preview
+
+  api:
+    image: ghcr.io/speixoto12/spotlive-api:preview
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app/backend
+      - ./backend/src:/app/backend/src
+      - ./backend/package.json:/app/backend/package.json
+      - ./backend/package-lock.json:/app/frontend/package-lock.json
+    command: npm run start
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`spotlive-dev.westeurope.cloudapp.azure.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
+      - "traefik.http.services.api.loadbalancer.server.port=3001"
+      - "com.centurylinklabs.watchtower.enable=true"
+    env_file:
+      - ./backend/.env
+
+volumes:
+  letsencrypt:

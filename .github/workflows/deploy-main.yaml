@@ -1,0 +1,25 @@
+name: Deployment Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Log In to Registry
+        run: echo "${{ secrets.CONTAINER_REGISTRY_PASSWORD }}" | docker login "${{ secrets.CONTAINER_REGISTRY_NAME }}" --username "${{ secrets.CONTAINER_REGISTRY_USERNAME }}" --password-stdin
+
+      - name: Build and Push Docker Images
+        run: |
+          docker build -t ghcr.io/speixoto12/spotlive-web:prod -f ./frontend/Dockerfile.prod ./frontend/
+          docker push ghcr.io/speixoto12/spotlive-web:prod
+
+          docker build -t ghcr.io/speixoto12/spotlive-api:prod -f ./backend/Dockerfile.prod ./backend/
+          docker push ghcr.io/speixoto12/spotlive-api:prod

@@ -1,0 +1,48 @@
+name: Linting and Code Formatting
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies - Frontend
+        run: npm install
+        working-directory: frontend
+
+      - name: Check Prettier - Frontend
+        run: npm run prettier:check
+        working-directory: frontend
+
+      - name: Check ESLint - Frontend
+        run: npm run lint
+        working-directory: frontend
+
+      - name: Install dependencies - Backend
+        run: npm install
+        working-directory: backend
+
+      - name: Check Prettier - Backend
+        run: npm run prettier:check
+        working-directory: backend
+
+      - name: Check ESLint - Backend
+        run: npm run lint
+        working-directory: backend

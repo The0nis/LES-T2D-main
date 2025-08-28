@@ -1,0 +1,218 @@
+name: End To End Testing
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  e2e-testing:
+    runs-on: ubuntu-latest
+
+    env:
+      # Frontend variables
+      VITE_APP_PORT: ${{ secrets.VITE_APP_PORT }}
+      VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
+      VITE_AGORA_APP_ID: ${{ secrets.VITE_AGORA_APP_ID }}
+
+      # Backend variables
+      BACKEND_API_PORT: ${{ secrets.BACKEND_API_PORT }}
+      NODE_ENV: development
+      DB_LOGGING: false
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+      CORS_WHITELIST: http://localhost:3000
+
+      # Database variables
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: db
+
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Create frontend .env file
+      - name: Create frontend .env file
+        run: |
+          echo "VITE_APP_PORT=$VITE_APP_PORT" >> frontend/.env
+          echo "VITE_APP_API_URL=$VITE_APP_API_URL" >> frontend/.env
+          echo "VITE_AGORA_APP_ID=$VITE_AGORA_APP_ID" >> frontend/.env
+
+      # Create backend .env file
+      - name: Create backend .env file
+        run: |
+          echo "BACKEND_API_PORT=$BACKEND_API_PORT" >> backend/.env
+          echo "NODE_ENV=$NODE_ENV" >> backend/.env
+          echo "DB_LOGGING=$DB_LOGGING" >> backend/.env
+          echo "SESSION_SECRET=$SESSION_SECRET" >> backend/.env
+          echo "CORS_WHITELIST=$CORS_WHITELIST" >> backend/.env
+
+          echo "POSTGRES_DB=$POSTGRES_DB" >> backend/.env
+          echo "POSTGRES_USER=$POSTGRES_USER" >> backend/.env
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> backend/.env
+          echo "POSTGRES_PORT=$POSTGRES_PORT" >> backend/.env
+          echo "POSTGRES_HOST=$POSTGRES_HOST" >> backend/.env
+
+      # Cache Frontend dependencies
+      - name: Cache Frontend dependencies
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: frontend-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            frontend-${{ runner.os }}-
+
+      # Cache Backend dependencies
+      - name: Cache Backend dependencies
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: backend-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            backend-${{ runner.os }}-
+
+      # Cache Cypress Binary
+      - name: Cache Cypress Binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-cache-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            cypress-cache-${{ runner.os }}-
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          npm install --prefix frontend
+          npm install --prefix backend
+
+      # Run Containers
+      - name: Run Containers
+        run: docker compose -f docker-compose.yaml up --build -d
+
+      # Update Database schema
+      - name: Update Database schema
+        working-directory: backend
+        run: npm run db:push
+
+      # Seed Database
+      - name: Seed Database
+        working-directory: backend
+        run: npm run db:seed
+
+      # Wait for containers to start
+      - name: Wait for services to start
+        run: |
+          until $(curl --output /dev/null --silent --head --fail http://localhost:$VITE_APP_PORT); do
+            echo "Waiting for frontend to start..."
+            sleep 5
+          done
+
+          until $(curl --output /dev/null --silent --head http://localhost:$BACKEND_API_PORT); do
+            echo "Waiting for backend to start..."
+            sleep 5
+          done
+ 
+      # Run End to End tests
+      - name: Run End to End tests
+        working-directory: frontend
+        run: npm run cy:run
+
+  unit-tests:
+      runs-on: ubuntu-latest
+      needs: e2e-testing
+
+      env:
+        # Frontend variables
+        VITE_APP_PORT: ${{ secrets.VITE_APP_PORT }}
+        VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
+        VITE_AGORA_APP_ID: ${{ secrets.VITE_AGORA_APP_ID }}
+
+        # Backend variables
+        BACKEND_API_PORT: ${{ secrets.BACKEND_API_PORT }}
+        NODE_ENV: development
+        DB_LOGGING: false
+        SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+        CORS_WHITELIST: http://localhost:3000
+
+        # Database variables
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_PORT: 5432
+        POSTGRES_HOST: db
+
+      steps:
+        # Checkout code
+        - name: Checkout code
+          uses: actions/checkout@v4
+
+        # Create frontend .env file
+        - name: Create frontend .env file
+          run: |
+            echo "VITE_APP_PORT=$VITE_APP_PORT" >> frontend/.env
+            echo "VITE_APP_API_URL=$VITE_APP_API_URL" >> frontend/.env
+            echo "VITE_AGORA_APP_ID=$VITE_AGORA_APP_ID" >> frontend/.env
+
+        # Create backend .env file
+        - name: Create backend .env file
+          run: |
+            echo "BACKEND_API_PORT=$BACKEND_API_PORT" >> backend/.env
+            echo "NODE_ENV=$NODE_ENV" >> backend/.env
+            echo "DB_LOGGING=$DB_LOGGING" >> backend/.env
+            echo "SESSION_SECRET=$SESSION_SECRET" >> backend/.env
+            echo "CORS_WHITELIST=$CORS_WHITELIST" >> backend/.env
+
+            echo "POSTGRES_DB=$POSTGRES_DB" >> backend/.env
+            echo "POSTGRES_USER=$POSTGRES_USER" >> backend/.env
+            echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> backend/.env
+            echo "POSTGRES_PORT=$POSTGRES_PORT" >> backend/.env
+            echo "POSTGRES_HOST=$POSTGRES_HOST" >> backend/.env
+
+        # Cache Backend dependencies
+        - name: Cache Backend dependencies
+          uses: actions/cache@v4
+          with:
+            path: backend/node_modules
+            key: backend-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
+            restore-keys: |
+              backend-${{ runner.os }}-
+
+        # Install dependencies
+        - name: Install dependencies
+          run: npm install --prefix backend
+
+        # Start Database
+        - name: Start Database
+          run: docker compose -f docker-compose.yaml up -d --build db
+
+        # Update Database schema
+        - name: Update Database schema
+          working-directory: backend
+          run: npm run db:push
+
+        # Seed Database
+        - name: Seed Database
+          working-directory: backend
+          run: npm run db:seed
+
+        # Wait for Database
+        - name: Wait for Database
+          run: |
+            until pg_isready -h localhost -p 5432; do
+              echo "Waiting for PostgreSQL..."
+              sleep 5
+            done
+
+        # Run Unit Tests
+        - name: Run Unit Tests
+          working-directory: backend
+          run: npm run tests

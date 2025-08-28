@@ -1,0 +1,130 @@
+[
+  {
+    "id": "1",
+    "title": "Doin Ya Thang",
+    "artist": "Oliver $",
+    "cover": "DoinYaThang.jpg",
+    "madeforyou": true,
+    "recent": false
+  },
+  {
+    "id": "2",
+    "title": "I Feel Love (Club Mix)",
+    "artist": "Kevin McKay",
+    "cover": "IFeelLove(ClubMix).jpg",
+    "madeforyou": true,
+    "recent": false
+  },
+  {
+    "id": "3",
+    "title": "I Like To Party",
+    "artist": "Disko Junkie",
+    "cover": "ILikeToParty.jpg",
+    "madeforyou": true,
+    "recent": false
+  },
+  {
+    "id": "4",
+    "title": "Piano Pump",
+    "artist": "Superlover",
+    "cover": "PianoPump.jpg",
+    "madeforyou": true,
+    "recent": false
+  },
+  {
+    "id": "5",
+    "title": "Saxophone",
+    "artist": "Simon Adams",
+    "cover": "Saxophone.jpg",
+    "madeforyou": true,
+    "recent": false
+  },
+  {
+    "id": "6",
+    "title": "Starry Night (Edit)",
+    "artist": "Peggy Gou",
+    "cover": "StarryNight(Edit).jpg",
+    "madeforyou": true,
+    "recent": false
+  },
+  {
+    "id": "7",
+    "title": "Sunday Shoutin' (Mixed)",
+    "artist": "Johnny Corporate",
+    "cover": "SundayShoutin'(Mixed).jpg",
+    "madeforyou": true,
+    "recent": false
+  },
+  {
+    "id": "8",
+    "title": "Who Dares To Believe In Me (Extended Mix)",
+    "artist": "Marco Lys",
+    "cover": "WhoDaresToBelieveInMe(ExtendedMix).jpg",
+    "madeforyou": true,
+    "recent": false
+  },
+  {
+    "id": "9",
+    "title": "Bailando",
+    "artist": "Daniel Steinberg",
+    "cover": "Bailando.jpg",
+    "madeforyou": false,
+    "recent": true
+  },
+  {
+    "id": "1ada1816-9cd6-47a6-892e-8f983a980c910",
+    "title": "Funky Town",
+    "artist": "Onsra",
+    "cover": "FunkyTown.jpg",
+    "madeforyou": false,
+    "recent": true
+  },
+  {
+    "id": "1ada1816-9cd6-47a6-892e-8f983a980c911",
+    "title": "Greenhouse",
+    "artist": "Monkey Safari",
+    "cover": "Greenhouse.jpg",
+    "madeforyou": false,
+    "recent": true
+  },
+  {
+    "id": "1ada1816-9cd6-47a6-892e-8f983a980c912",
+    "title": "I Did Wrong",
+    "artist": "THEOS",
+    "cover": "IDidWrong.jpg",
+    "madeforyou": false,
+    "recent": true
+  },
+  {
+    "id": "1ada1816-9cd6-47a6-892e-8f983a980c913",
+    "title": "Lucky Star (Martijn Ten Velden Remix)",
+    "artist": "Ron Carroll",
+    "cover": "LuckyStar(MartijnTenVeldenRemix).jpg",
+    "madeforyou": false,
+    "recent": true
+  },
+  {
+    "id": "1ada1816-9cd6-47a6-892e-8f983a980c914",
+    "title": "Madan (Exotic Disco Mix)",
+    "artist": "Salif Keïta",
+    "cover": "Madan(ExoticDiscoMix).jpg",
+    "madeforyou": false,
+    "recent": true
+  },
+  {
+    "id": "1ada1816-9cd6-47a6-892e-8f983a980c915",
+    "title": "The Sermon (Tobi Kramer Remix)",
+    "artist": "Ron Carroll",
+    "cover": "TheSermon(TobiKramerRemix).jpg",
+    "madeforyou": false,
+    "recent": true
+  },
+  {
+    "id": "1ada1816-9cd6-47a6-892e-8f983a980c916",
+    "title": "Why Does It Hurt So Much",
+    "artist": "Gregory (AT)",
+    "cover": "WhyDoesItHurtSoMuch.jpg",
+    "madeforyou": false,
+    "recent": true
+  }
+]

@@ -1,0 +1,58 @@
+{
+  "tests": [
+    {
+      "description": "should display search results when artist is found",
+      "steps": [
+        {
+          "action": "navigate",
+          "url": "http://localhost:3000/artist-search"
+        },
+        {
+          "action": "sendKeys",
+          "selector": "input[name='artist-search']",
+          "keys": "The Beatles"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']"
+        },
+        {
+          "action": "waitForElement",
+          "selector": ".search-results"
+        },
+        {
+          "action": "assertText",
+          "selector": ".search-results",
+          "text": "The Beatles"
+        }
+      ]
+    },
+    {
+      "description": "should display no results message when artist is not found",
+      "steps": [
+        {
+          "action": "navigate",
+          "url": "http://localhost:3000/artist-search"
+        },
+        {
+          "action": "sendKeys",
+          "selector": "input[name='artist-search']",
+          "keys": "Unknown Artist"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']"
+        },
+        {
+          "action": "waitForElement",
+          "selector": ".no-results"
+        },
+        {
+          "action": "assertText",
+          "selector": ".no-results",
+          "text": "No results found"
+        }
+      ]
+    }
+  ]
+}
